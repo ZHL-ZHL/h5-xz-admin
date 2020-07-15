@@ -12,18 +12,26 @@
         <el-table-column prop="username" label="用户名"></el-table-column>
         <el-table-column prop="mobile" label="手机号"></el-table-column>
         <el-table-column prop="email" label="邮箱"></el-table-column>
-        <el-table-column fixed="right"  label="操作" align="center" width="180">
+        <el-table-column fixed="right" label="操作" align="center" width="180">
           <template slot-scope="scope">
             <el-tooltip effect="light" content="编辑" placement="bottom">
               <el-button
                 size="mini"
-                type="primary"  plain   icon="el-icon-edit"
+                type="primary"
+                plain
+                icon="el-icon-edit"
                 @click="$router.push(`/admin_users/edit/${scope.row.id}`)"
               ></el-button>
             </el-tooltip>
 
             <el-tooltip effect="light" content="删除" placement="bottom">
-              <el-button size="mini" type="danger"  plain   icon="el-icon-delete" @click="remove(scope.row)"></el-button>
+              <el-button
+                size="mini"
+                type="danger"
+                plain
+                icon="el-icon-delete"
+                @click="remove(scope.row)"
+              ></el-button>
             </el-tooltip>
             <!-- <el-button
               type="text"

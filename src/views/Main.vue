@@ -1,7 +1,7 @@
 <template>
   <el-container style="height: 100vh;">
     <el-aside width="200px">
-      <el-menu router unique-opened :default-active="$route.path">
+      <el-menu router unique-opened :default-active="onRoutes">
         <el-submenu index="1" v-if="meunBtn == 1">
           <template slot="title">
             <i class="el-icon-unlock"></i>
@@ -27,7 +27,7 @@
           <el-menu-item-group>
             <!-- <template slot="title">卡牌</template> -->
             <!-- <el-menu-item index="/card/create">新建卡牌</el-menu-item> -->
-            <el-menu-item index="/card/list">卡牌列表</el-menu-item>
+            <el-menu-item index="/card/list/0/0/1">卡牌列表</el-menu-item>
           </el-menu-item-group>
           <el-menu-item-group>
             <!-- <template slot="title">留言</template> -->
@@ -110,13 +110,22 @@ export default {
   computed: {
     name() {
       return localStorage.getItem("name");
+    },
+    onRoutes() {
+      var path = this.$route.path;
+      if (path.indexOf("/card/") != -1) { 
+        path = '/card/list/0/0/1'
+      } else {
+        path = this.$route.path;
+      }
+      return path;
     }
   },
   created() {
-    console.log(localStorage.getItem("meunBtn"))
-    this.meunBtn = localStorage.getItem("meunBtn")
+    console.log(localStorage.getItem("meunBtn"));
+    this.meunBtn = localStorage.getItem("meunBtn");
     if (this.$route.path == "/") {
-      this.$router.push("/admin_users/create"); 
+      this.$router.push("/admin_users/create");
     }
   },
   methods: {

@@ -298,7 +298,7 @@
               v-model="form.content"
               :editor-toolbar="customToolbar"
               useCustomImageHandler
-              @image-added="handleImageAdded"
+              @imageAdded="handleImageAdded"
             ></vue-editor>
           </el-form-item>
           <div style="border:1px solid #f0f0f0;padding:10px;margin-bottom:20px">
@@ -614,8 +614,8 @@ export default {
         res.data.is_recommend = String(res.data.is_recommend);
         res.data.is_rotation = String(res.data.is_rotation);
         this.form = res.data;
-        this.form.origin_price = res.data.origin_price;
-        this.form.present_price = res.data.present_price;
+        this.form.origin_price = res.data.origin_price/100;
+        this.form.present_price = res.data.present_price/100;
         this.dialogFormVisible = true;
         this.form.id = type ? this.form.id : "";
         console.log(this.form);

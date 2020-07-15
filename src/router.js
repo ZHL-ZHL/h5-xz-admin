@@ -28,9 +28,9 @@ const router = new Router({
       name: 'main',
       component: Main,
       children: [
-        { path: '/Card/create/:id', component: CardEdit },
-        { path: '/Card/edit/:id', component: CardEdit, props: true },
-        { path: '/Card/list', component: CardList },
+        { path: '/Card/create/:first/:second/:page', component: CardEdit },
+        { path: '/Card/edit/:id/:first/:second/:page', component: CardEdit, props: true },
+        { path: '/Card/list/:first/:second/:page', component: CardList },
 
         { path: '/Message/create', component: MessageEdit },
         { path: '/Message/edit/:id', component: MessageEdit, props: true },

@@ -42,7 +42,7 @@
           </el-button>
         </el-col>
         <el-col
-          :span="6"
+          :span="7"
           style="width220px;height:100%;border-right:1px solid #e6e6e6;padding-bottom:50px;position: relative;"
         >
           <!-- <h1 class="card-header" style="height:45px;margin:0px"></h1> -->
@@ -54,6 +54,8 @@
           >
             <template v-for="item in secondList">
               <el-menu-item :index="item.id+''" :key="item.id">
+                <i v-if="item.is_daily_fortune == 1" class="el-icon-star-on" style="color:#409EFF"></i>
+                <i v-if="item.is_daily_fortune == 0" style="display:inline-block;width:25px"></i>
                 <span
                   slot="title"
                   :title="item.name"
@@ -63,7 +65,7 @@
                   slot="title"
                   :title="item.name"
                   style="display:inline-block;width:60px;overflow: hidden;white-space: nowrap;text-overflow: ellipsis;"
-                >{{item.present_price}}元</span>
+                >{{item.present_price/100}}元</span>
 
                 <i
                   class="el-icon-delete"
@@ -72,26 +74,26 @@
                 ></i>
                 <i
                   class="el-icon-edit"
-                  @click.stop="dialogFormVisible2 = true;item.is_vip_free = String(item.is_vip_free);form2=JSON.parse(JSON.stringify(item))"
+                  @click.stop="getDetail(item)"
                   style="float:right;margin-top:20px"
                 ></i>
               </el-menu-item>
             </template>
           </el-menu>
           <el-button
-            @click="dialogFormVisible2 = true;form2.id='';form2.name='';form2.is_vip_free='0';form2.present_price=0;form2.origin_price=0;form2.parent_id=active1;"
+            @click="dialogFormVisible2 = true;form2.id='';form2.name='';form2.is_vip_free='0';form2.is_daily_fortune='0';form2.present_price=0;form2.origin_price=0;form2.parent_id=active1;"
             plain
             style="width:100%;border-style:dashed;position: absolute;bottom: 0px;"
           >
             <i class="el-icon-circle-plus-outline"></i> 分类管理
           </el-button>
         </el-col>
-        <el-col :span="13">
+        <el-col :span="12">
           <el-button
             type="primary"
             class="add myBtn"
             v-if="active2"
-            @click="$router.push(`/card/create/${active2}`)"
+            @click="$router.push(`/card/create/${active1}/${active2}/1`)"
             style="float:right;margin-top:20px;margin-right:20px"
           >
             <i class="el-icon-s-custom"></i> 添加卡牌
@@ -122,7 +124,7 @@
                     type="primary"
                     plain
                     icon="el-icon-edit"
-                    @click="$router.push(`/card/edit/${scope.row.id}`)"
+                    @click="$router.push(`/card/edit/${scope.row.id}/${active1}/${active2}/${pageIndex}`)"
                   ></el-button>
                 </el-tooltip>
 
@@ -142,6 +144,7 @@
             background
             layout="prev, pager, next"
             :page-size="pageSize"
+            :current-page.sync="pageIndex"
             @next-click="nextClick"
             @prev-click="prevClick"
             @size-change="handleSizeChange"
@@ -156,6 +159,9 @@
         <el-form-item label="分类名称">
           <el-input v-model="form1.name" auto-complete="off"></el-input>
         </el-form-item>
+        <el-form-item label="分类排序">
+          <el-input-number  v-model="form1.sort" :min="0"></el-input-number>
+        </el-form-item> 
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible1 = false">取 消</el-button>
@@ -167,10 +173,19 @@
         <el-form-item label="分类名称">
           <el-input v-model="form2.name" auto-complete="off" style=";width:calc(100% - 80px)"></el-input>
         </el-form-item>
+        <el-form-item label="分类排序">
+          <el-input-number v-model="form2.sort" :min="0"></el-input-number>
+        </el-form-item> 
         <el-form-item label="会员是否免费" prop="is_vip_free">
           <el-radio-group v-model="form2.is_vip_free">
             <el-radio label="0">免费</el-radio>
             <el-radio label="1">付费</el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <el-form-item label="是否每日运势" prop="is_daily_fortune">
+          <el-radio-group v-model="form2.is_daily_fortune">
+            <el-radio label="0">否</el-radio>
+            <el-radio label="1">是</el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="原价" prop="origin_price">
@@ -234,6 +249,7 @@ export default {
         sort: 0,
         type: 2,
         is_vip_free: "0",
+        is_daily_fortune: "0",
         origin_price: 0,
         present_price: 0
       },
@@ -249,6 +265,14 @@ export default {
     };
   },
   methods: {
+    getDetail(item) {
+      this.dialogFormVisible2 = true;
+      item.is_vip_free = String(item.is_vip_free);
+      item.is_daily_fortune = String(item.is_daily_fortune);
+      this.form2 = JSON.parse(JSON.stringify(item));
+      this.form2.origin_price = this.form2.origin_price / 100;
+      this.form2.present_price = this.form2.present_price / 100;
+    },
     handleItemChange(val) {
       this.$http
         .get("card/category/page", {
@@ -286,10 +310,12 @@ export default {
     },
     handleSelect1(key, keyPath) {
       this.active1 = key;
+      this.pageIndex=1;
       this.active2 = "";
       this.getcategoryItem(key);
     },
     handleSelect2(key, keyPath) {
+      this.pageIndex=1;
       this.active2 = key;
       this.fetch();
     },
@@ -449,7 +475,7 @@ export default {
         this.$http
           .post(
             `card/category/${!this.form2.id ? "create" : "update"}`,
-              formObj
+            formObj
           )
           .then(res => {
             if (res.code == 200) {
@@ -530,6 +556,14 @@ export default {
     }
   },
   created() {
+    this.active1 =
+      this.$route.params.first == 0 ? "" : String(this.$route.params.first);
+    this.active2 =
+      this.$route.params.second == 0 ? "" : String(this.$route.params.second);
+    this.pageIndex =
+      this.$route.params.page == 1 ? 1 : Number(this.$route.params.page);
+  },
+  mounted() {
     this.getcategory();
   }
 };

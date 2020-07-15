@@ -2,7 +2,7 @@
   <div class="about card">
     <h1 class="card-header">{{id ? '编辑' : '新建'}}卡牌</h1>
     <el-button
-          @click="$router.push('/card/list')"
+          @click="$router.push(`/card/list/${$route.params.first}/${$route.params.second}/${$route.params.page}`)"
           style="position: absolute; right: 30px; top: 27px;"
         >返 回</el-button>
     <el-form
@@ -42,7 +42,7 @@
           v-model="model.content"
           :editor-toolbar="customToolbar"
           useCustomImageHandler
-          @image-added="handleImageAdded"
+          @imageAdded="handleImageAdded"
         ></vue-editor>
       </el-form-item>
       <el-form-item style="text-align:right">
@@ -90,8 +90,7 @@ export default {
     afterUpload(res) {
       this.$set(this.model, "icon", res.data.url);
     },
-    async handleImageAdded(file, Editor, cursorLocation, resetUploader) {
-      debugger;
+    async handleImageAdded(file, Editor, cursorLocation, resetUploader) { 
       const formData = new FormData();
       formData.append("file", file);
       const res = await this.$http.post("/storage/upload", formData);
@@ -115,7 +114,7 @@ export default {
       if (this.model.password) {
         this.model.password = md5(this.model.password);
       }
-      this.model.category_id = this.$route.params.id;
+      this.model.category_id = this.$route.params.second;
       if (this.id) {
         // debugger
         this.$set(this.model, "user_id", parseInt(this.id)); // this.model.id=this.id
@@ -124,8 +123,8 @@ export default {
       } else {
         res = await this.$http.post("card/create", this.model);
       }
-      if (res.code == 200) {
-        this.$router.push("/card/list");
+      if (res.code == 200) { 
+        this.$router.push(`/card/list/${this.$route.params.first}/${this.$route.params.second}/${this.$route.params.page}`);
         this.$message({
           type: "success",
           message: "保存成功"
