@@ -7,6 +7,15 @@
           style="width220px;height:100%;border-right:1px solid #e6e6e6;padding-bottom:50px;position: relative;"
         >
           <!-- <h1 class="card-header" style="height:45px;margin:0px"></h1> -->
+          <el-input
+            placeholder="请输入内容"
+            v-model="keyWork1"
+            clearable
+            class="input-with-select"
+            @change="clear1"
+          >
+            <el-button slot="append" icon="el-icon-search" @click="getcategory"></el-button>
+          </el-input>
           <el-menu
             :default-active="active1"
             class="el-menu-vertical-demo"
@@ -46,6 +55,15 @@
           style="width220px;height:100%;border-right:1px solid #e6e6e6;padding-bottom:50px;position: relative;"
         >
           <!-- <h1 class="card-header" style="height:45px;margin:0px"></h1> -->
+          <el-input
+            placeholder="请输入内容"
+            v-model="keyWork2"
+            clearable
+            class="input-with-select"
+            @change="clear2"
+          >
+            <el-button slot="append" icon="el-icon-search" @click="getcategoryItem"></el-button>
+          </el-input>
           <el-menu
             :default-active="active2"
             class="el-menu-vertical-demo"
@@ -160,8 +178,8 @@
           <el-input v-model="form1.name" auto-complete="off"></el-input>
         </el-form-item>
         <el-form-item label="分类排序">
-          <el-input-number  v-model="form1.sort" :min="0"></el-input-number>
-        </el-form-item> 
+          <el-input-number v-model="form1.sort" :min="0"></el-input-number>
+        </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible1 = false">取 消</el-button>
@@ -175,7 +193,7 @@
         </el-form-item>
         <el-form-item label="分类排序">
           <el-input-number v-model="form2.sort" :min="0"></el-input-number>
-        </el-form-item> 
+        </el-form-item>
         <el-form-item label="会员是否免费" prop="is_vip_free">
           <el-radio-group v-model="form2.is_vip_free">
             <el-radio label="0">免费</el-radio>
@@ -235,6 +253,8 @@
 export default {
   data() {
     return {
+      keyWork2: "",
+      keyWork1: "",
       options2: [],
       categoryvalue: "",
       categoryvalue2: "",
@@ -265,6 +285,16 @@ export default {
     };
   },
   methods: {
+    clear1() {
+      if (this.keyWork1 == "") {
+        this.getcategory()
+      }
+    },
+    clear2() {
+      if (this.keyWork2 == "") {
+        this.getcategoryItem()
+      }
+    },
     getDetail(item) {
       this.dialogFormVisible2 = true;
       item.is_vip_free = String(item.is_vip_free);
@@ -310,12 +340,12 @@ export default {
     },
     handleSelect1(key, keyPath) {
       this.active1 = key;
-      this.pageIndex=1;
+      this.pageIndex = 1;
       this.active2 = "";
-      this.getcategoryItem(key);
+      this.getcategoryItem();
     },
     handleSelect2(key, keyPath) {
-      this.pageIndex=1;
+      this.pageIndex = 1;
       this.active2 = key;
       this.fetch();
     },
@@ -356,7 +386,7 @@ export default {
             type: "success",
             message: "删除成功!"
           });
-          this.getcategoryItem(this.active1);
+          this.getcategoryItem();
         } else {
           this.$message({
             type: "error",
@@ -368,7 +398,13 @@ export default {
     getcategory() {
       this.$http
         .get("card/category/page", {
-          params: { type: 1, parent_id: 0, page_index: 1, page_size: 10000 }
+          params: {
+            type: 1,
+            parent_id: 0,
+            page_index: 1,
+            page_size: 10000,
+            keyWork: this.keyWork1
+          }
         })
         .then(res => {
           if (res.code == 200) {
@@ -381,16 +417,22 @@ export default {
               if (!this.active1) {
                 this.active1 = res.data.result[0].id + "";
               }
-              this.getcategoryItem(this.active1);
+              this.getcategoryItem();
             }
           }
         });
     },
-    getcategoryItem(id) {
+    getcategoryItem() {
       this.items = [];
       this.$http
         .get("card/category/page", {
-          params: { type: 2, parent_id: id, page_index: 1, page_size: 10000 }
+          params: {
+            type: 2,
+            parent_id: this.active1,
+            page_index: 1,
+            page_size: 10000,
+            keyWork: this.keyWork2
+          }
         })
         .then(res => {
           if (res.code == 200) {
